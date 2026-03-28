@@ -55,40 +55,98 @@
 
 \section{Requirements Elicitation and Analysis}\label{requirements}
 
+\subsection{Functional Requirements}
+
 \begin{itemize}
-	\item The requirements must explain \textbf{what} (not how) the software
-	being produced should do.
-	%
-	\begin{itemize}
-		\item you should not focus on the particular problems, but exclusively on
-		what you want the application to do.
-	\end{itemize}
+	\item \textbf{FR1 -- User registration and authentication:} The system shall allow a user to create an account and authenticate securely before accessing the messaging service.
 	
-	\item Requirements must be clearly identified, and possibly numbered
+	\textbf{Acceptance criterion:} A user can register with valid credentials, log in successfully, and access the application only after authentication.
 	
-	\item Requirements are divided into:
-	%
-	\begin{itemize}
-		\item \textbf{Functional}: some functionality the software should provide to the user
-		
-		\item \textbf{Non-functional}: requirements that do not directly concern behavioural aspects, such as consistency, availability, etc.
-		
-		\item \textbf{Implementation}: constrain the entire phase of system realization, 
-		for instance by requiring the use of a specific programming language and/or a specific software tool
-		%
-		\begin{itemize}
-			\item these constraints should be adequately justified by political / economic / administrative reasons\ldots{}
-			\item \ldots{} otherwise, implementation choices should emerge \emph{as  a consequence of} design
-		\end{itemize}
-	\end{itemize}
+	\item \textbf{FR2 -- One-to-one messaging:} The system shall allow authenticated users to exchange private text messages with other registered users.
 	
-	\item If there are domain-specific terms, these should be explained in a glossary
+	\textbf{Acceptance criterion:} A user can send a text message to another registered user, and the recipient can read it if they are connected or later after synchronization.
 	
-	\item Each requirement must have its own \textbf{acceptance criterion}
-	%
-	\begin{itemize}
-		\item these will be important for the validation phase
-	\end{itemize}
+	\item \textbf{FR3 -- Real-time message delivery:} The system shall deliver messages in real time when both users are online.
+	
+	\textbf{Acceptance criterion:} When two users are connected, a message sent by one user becomes visible to the recipient without requiring manual refresh.
+	
+	\item \textbf{FR4 -- Offline message synchronization:} The system shall allow users to recover messages that were received while they were temporarily offline.
+	
+	\textbf{Acceptance criterion:} After a user reconnects and logs in again, previously missed messages are retrieved and displayed in the client.
+	
+	\item \textbf{FR5 -- Local conversation storage:} The system shall keep a local history of messages on the client side so that users can access past conversations even without an active network connection.
+	
+	\textbf{Acceptance criterion:} A user can open the client and view previously stored messages from the local database.
+	
+	\item \textbf{FR6 -- Message ordering support:} The system shall preserve a meaningful order of messages within a conversation, even when delivery is asynchronous.
+	
+	\textbf{Acceptance criterion:} Messages are displayed in an order that is consistent with the logical progression of the conversation.
+\end{itemize}
+
+\subsection{Non-Functional Requirements}
+
+\begin{itemize}
+	\item \textbf{NFR1 -- Availability:} The system shall remain usable even when some internal components are temporarily unavailable.
+	
+	\textbf{Acceptance criterion:} A temporary failure of one internal component does not completely stop the service, and the system resumes normal operation after recovery.
+	
+	\item \textbf{NFR2 -- Eventual consistency:} The system shall ensure that the state observed by users converges over time after temporary disconnections or delays.
+	
+	\textbf{Acceptance criterion:} After synchronization, users eventually observe a consistent view of exchanged messages.
+	
+	\item \textbf{NFR3 -- Responsiveness:} The system shall support low-latency interaction suitable for a real-time chat application.
+	
+	\textbf{Acceptance criterion:} Sending and receiving a message should feel immediate from the user's perspective during normal operation.
+	
+	\item \textbf{NFR4 -- Reliability and recovery:} The system shall recover gracefully from transient failures and support state reconciliation after disconnections.
+	
+	\textbf{Acceptance criterion:} After a disconnection, the system is able to restore missing messages and reestablish a consistent conversation state.
+	
+	\item \textbf{NFR5 -- Scalability:} The system shall support growth in the number of users, messages, and concurrent connections without requiring a redesign of the overall architecture.
+	
+	\textbf{Acceptance criterion:} The system can be extended by adding more service instances or infrastructure resources while preserving the same logical behavior.
+	
+	\item \textbf{NFR6 -- Durability:} The system shall ensure that messages are not lost due to transient failures.
+	
+	\textbf{Acceptance criterion:} Messages sent by a user are eventually delivered or recoverable after temporary failures.
+	
+	\item \textbf{NFR7 -- Maintainability:} The system shall be structured in a modular way so that different responsibilities can evolve independently.
+	
+	\textbf{Acceptance criterion:} Changes to one subsystem, such as authentication or message delivery, can be introduced with limited impact on the others.
+\end{itemize}
+
+\subsection{Implementation Requirements}
+
+\begin{itemize}
+	\item \textbf{IR1 -- Limited development scope:} The system shall be designed and implemented by a single developer within a limited time budget (approximately 90 hours).
+	
+	\textbf{Acceptance criterion:} The final system includes a working prototype that covers the core functionalities within the given time constraints.
+	
+	\item \textbf{IR2 -- Local deployment environment:} The system shall be deployable and testable on a single machine using a local environment.
+	
+	\textbf{Acceptance criterion:} The system can be executed and tested locally without requiring external infrastructure.
+	
+	\item \textbf{IR3 -- Use of container orchestration:} The system shall be deployable in a containerized environment using Kubernetes for educational purposes.
+	
+	\textbf{Acceptance criterion:} The system can be deployed and run using a local Kubernetes setup (e.g., Minikube).
+	
+	\item \textbf{IR4 -- Technology familiarity constraint:} The implementation should rely on technologies that are compatible with the developer’s existing knowledge and learning goals.
+	
+	\textbf{Acceptance criterion:} The chosen technologies allow the system to be implemented within the project constraints and support the intended learning objectives.
+\end{itemize}
+
+\subsection{Glossary}
+
+\begin{itemize}
+	\item \textbf{JWT (JSON Web Token):} A token used to represent the authenticated identity of a user and to authorize requests to the system.
+	\item \textbf{REST (Representational State Transfer):} An architectural style for designing networked applications, typically based on HTTP, used here for client-server communication during authentication and synchronization.
+	\item \textbf{WebSocket:} A communication protocol that enables persistent bidirectional interaction between the client and the server for real-time message exchange.
+	\item \textbf{Kafka:} A distributed event streaming platform used as the backbone of the system to propagate messages between components.
+	\item \textbf{Event-driven architecture:} A design paradigm in which system components communicate through the production and consumption of events, enabling loose coupling and asynchronous interaction.
+	\item \textbf{Lamport clock:} A logical clock mechanism used to maintain a consistent ordering of events in a distributed system without relying on synchronized physical time.
+	\item \textbf{Eventual consistency:} A consistency model in which the system guarantees that all participants will converge to the same state over time, even if temporary inconsistencies occur.
+	\item \textbf{Presence information:} Information that indicates whether a user is currently online and reachable, used to support message routing and delivery decisions.
+	\item \textbf{Reconciliation:} The process of restoring a consistent system state after temporary inconsistencies or disconnections.
 \end{itemize}
 
 \subsection{Relevant Distributed System Features}
@@ -514,6 +572,7 @@ Discuss possible future works, improvements, extensions, optimizations, etc.
 
 Also discuss here any unimplemented feature, and how you would have implemented it.
 
+\nocite{*}
 \bibliographystyle{plain}
 \bibliography{references}
 
