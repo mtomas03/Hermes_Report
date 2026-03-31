@@ -152,65 +152,68 @@
 \subsection{Relevant Distributed System Features}
 \label{ds-features}
 
-Motivate which distributed system features are relevant for your project, and which are not.
-%
 \begin{itemize}
-	\item transparency
-	\begin{itemize}
-		\item does your system need to hide distribution details from users or developers?
-		\item is it important that failures, location, or replication are invisible?
-	\end{itemize}
+	\item \textbf{Transparency} is considered an important but not absolute requirement. From the user perspective, the system should hide most of the underlying distributed complexity. In particular, users should not be aware of how messages are propagated, where components are deployed, or how many internal services are involved. The interaction should resemble that of a standard messaging application, where sending and receiving messages appears simple and immediate.
 	
-	\item fault tolerance, dependability -- availability, reliability, integrity, maintainability, safety
-	\begin{itemize}
-		\item what happens if a component fails? is uninterrupted service required?
-		\item is data loss or corruption unacceptable?
-		\item how quickly must the system recover from faults?
-	\end{itemize}
+	However, transparency is only partially required. Some aspects of distribution are intentionally visible at a conceptual level due to the educational nature of the project. For example, temporary delays, message reordering, or synchronization after disconnection may be observable by the user, reflecting the underlying distributed behavior of the system. This is consistent with the choice of prioritizing availability over strict consistency.
 	
-	\item scalability
-	\begin{itemize}
-		\item will the system need to handle increasing numbers of users, requests, or data?
-		\item is it expected to grow over time?
-	\end{itemize}
+	Location transparency is not fully enforced in the current prototype, since all client requests are routed to a single back-end entry point without location-aware policies. Replication and failure transparency are also only partial: the system is designed to tolerate failures and continue operating, but transient inconsistencies or delays may still be visible during recovery.
 	
-	\item security, trust
-	\begin{itemize}
-		\item is sensitive data being processed or stored?
-		\item are there multiple user roles with different permissions?
-		\item is authentication or authorization required?
-	\end{itemize}
+	From the developer perspective, distribution is explicit rather than hidden, since distributed components, asynchronous communication, and event-based interaction are central to the learning goals of the project.
 	
-	\item resource sharing
-	\begin{itemize}
-		\item do multiple users or components need access to shared resources?
-		\item is coordination or synchronization needed?
-	\end{itemize}
+	\item \textbf{Fault tolerance and dependability -- availability, reliability, integrity, maintainability, safety:} The system places a strong emphasis on availability. If a component fails, the service should continue operating in a degraded but still usable state whenever possible. Temporary unavailability may delay message delivery or synchronization, but it should not prevent users from using the application entirely.
 	
-	\item openness, interoperability, heterogeneity of components
-	\begin{itemize}
-		\item Will your system interact with external systems or use components built with different technologies?
-		\item Is standardization or compatibility important?
-	\end{itemize}
+	Data loss is unacceptable in normal operation. Messages sent by users should eventually be delivered or made available after recovery, even in the presence of transient failures. Short-lived inconsistencies may occur because of the asynchronous nature of the system, but data integrity should be preserved in the long term.
 	
-	\item evolvability, maintainability
-	\begin{itemize}
-		\item Will the system need to be updated or extended after deployment?
-		\item Is long-term maintenance a concern?
-	\end{itemize}
+	Recovery from faults should be automatic and reasonably fast, without requiring user intervention. After a failure or disconnection, the system should restore connectivity, retrieve missing messages, and re-establish a consistent state through synchronization and reconciliation.
 	
-	\item performance, concurrency, computation / communication efficiency, bandwidth
-	\begin{itemize}
-		\item Are there strict requirements on response time or throughput?
-		\item Will many operations happen in parallel?
-		\item Is network usage a concern?
-	\end{itemize}
+	Reliability is supported by asynchronous communication and persistent state management. Maintainability is also important: the system is structured in a modular way so that individual components can be updated, replaced, or debugged independently. Safety, understood as protection against harmful behavior in a safety-critical sense, is not a primary concern for this application domain.
 	
-	\item economy, costs  
-	\begin{itemize}
-		\item Are there budget constraints for development, deployment, or operation?
-		\item Is minimizing resource usage important?
-	\end{itemize}
+	\item \textbf{Scalability:} The system is expected to handle increasing numbers of users, messages, and concurrent connections. Even though the prototype is developed within a limited scope, it is designed with the assumption that the workload may grow over time. In particular, the system should support multiple active users exchanging messages simultaneously without requiring a redesign of the overall architecture.
+	
+	Scalability is therefore an important requirement, as real-time messaging systems are inherently subject to variable and potentially high loads. The system should be able to grow both in terms of the number of users and the volume of exchanged messages by extending resources and services incrementally.
+	
+	However, scalability is considered at a conceptual level in this project. The goal is not to achieve large-scale production performance, but to demonstrate how a distributed architecture can support growth through modularity and extensibility.
+	
+	\item \textbf{Security and trust:} The system processes and stores sensitive data, in particular user credentials and private messages exchanged between users. For this reason, security is an important requirement. While the prototype does not aim to provide production-grade security guarantees, it must ensure a reasonable level of protection against unauthorized access and misuse of data.
+	
+	The system is based on a single main user role: authenticated users who can access the messaging functionality. No complex role hierarchy or fine-grained authorization model is required within the scope of this project. However, only authenticated users should be able to interact with the system and access their own communication data.
+	
+	Authentication is therefore a core requirement, and the system must verify the identity of users before granting access to its services. Basic authorization is also required to ensure that users can only send and receive messages that belong to them. Trust in the system is established through controlled access and by preventing unauthorized interactions between users.
+	
+	More advanced security mechanisms, such as sophisticated attack prevention or comprehensive access control policies, are outside the scope of the project. The focus is instead on the fundamental mechanisms that enable secure communication in a distributed environment.
+	
+	\item \textbf{Resource sharing:} The system involves multiple users and distributed components that need to access shared resources. In particular, users share the messaging infrastructure to exchange messages, while back-end components share communication channels, user data, and transient state such as presence information. Resource sharing is therefore an inherent aspect of the system.
+	
+	Coordination is required to ensure correct behavior when accessing shared resources. For example, message exchange must be coordinated so that messages are correctly routed and eventually delivered, even in the presence of asynchronous communication and temporary disconnections. Similarly, shared state such as user presence must be handled in a way that avoids inconsistencies that could compromise the user experience.
+	
+	However, strict synchronization is not always enforced. In line with the overall design philosophy of the system, coordination mechanisms are lightweight and tolerate temporary inconsistencies. The system favors eventual consistency and asynchronous interaction over strong coordination.
+	
+	\item \textbf{Openness, interoperability, and heterogeneity of components:} The system combines several components that may rely on different technologies and communication paradigms. Even though the prototype is developed within a controlled environment, it reflects a heterogeneous architecture in which different subsystems cooperate to provide the overall functionality. This makes interoperability an important aspect, as components must communicate effectively despite differences in implementation.
+	
+	Standardization plays a relevant role in enabling interoperability. The system relies on well-established communication models and interfaces, allowing components to exchange information in a consistent and predictable way. This facilitates integration between different parts of the system and makes it easier to extend or replace individual components without affecting the entire architecture.
+	
+	Openness is considered at a conceptual level. The system is not explicitly designed to interoperate with external third-party services in its current form; however, it is structured in a way that could support future extensions or integration scenarios. The prototype is therefore open to evolution and adaptation, even if full interoperability with external systems is not a primary objective.
+	
+	\item \textbf{Evolvability and maintainability:} The system is expected to be updated and extended after its initial development, even though it is implemented as a prototype. In particular, the architecture is conceived to allow the addition of new features, improvements to existing functionalities, or replacement of individual components without requiring a complete redesign.
+	
+	Maintainability is therefore a relevant concern. The system is structured in a modular way, with clearly separated responsibilities, so that different parts can be understood, modified, and tested independently. This reduces the complexity of future changes and facilitates debugging and incremental development.
+	
+	Long-term maintenance is not a primary objective of the project, since the system is not intended for production use. However, adopting maintainable design principles is still important to ensure that the system remains understandable and adaptable over time.
+	
+	\item \textbf{Performance, concurrency, computation and communication efficiency, bandwidth:} The system is expected to provide a responsive user experience, as it targets real-time messaging scenarios. While there are no strict quantitative requirements on response time or throughput, message delivery should appear near-instantaneous under normal operating conditions.
+	
+	Concurrency is an important aspect of the system. Multiple users may interact with the platform simultaneously, sending and receiving messages in parallel. The system must therefore handle concurrent operations without significant degradation in responsiveness or correctness.
+	
+	Communication efficiency is relevant due to the distributed nature of the system. Messages are exchanged between multiple components, and network communication plays a central role in overall performance. Although bandwidth is not expected to be a critical limitation in the target environment, the system should avoid unnecessary data transfer and redundant communication whenever possible.
+	
+	Computation efficiency is considered at a conceptual level. The system should not introduce unnecessary processing overhead that could negatively affect responsiveness. However, low-level optimization is not a primary goal of the project.
+	
+	\item \textbf{Economy, costs:} The system is designed within a strict development budget and time constraint, as it is implemented by a single developer for a university project. Resource usage should be kept reasonable to fit within the limited scope and infrastructure available.
+	
+	Deployment and operational costs are expected to be low, since the prototype will primarily run on a local machine.
+	
+	While high efficiency is not the primary focus, economical design choices are encouraged to keep both development effort and operational cost manageable.
 \end{itemize}
 
 \section{Design}\label{design}
